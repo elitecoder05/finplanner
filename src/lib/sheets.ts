@@ -32,6 +32,14 @@ export interface Summary {
 const TRANSACTIONS_SHEET_NAME = "Transactions";
 const MONTHLY_SUMMARY_SHEET_NAME = "Monthly Summary";
 
+type AddSheetRequest = {
+  addSheet: {
+    properties: {
+      title: string;
+    };
+  };
+};
+
 function parseSheetAmount(raw: string | undefined): number {
   if (!raw) return 0;
   const normalized = raw
@@ -78,9 +86,7 @@ async function ensureRequiredSheetsAndHeaders(
       .filter((title): title is string => Boolean(title))
   );
 
-  const addRequests: NonNullable<
-    google.sheets_v4.Schema$BatchUpdateSpreadsheetRequest["requests"]
-  > = [];
+  const addRequests: AddSheetRequest[] = [];
 
   if (!existingTitles.has(TRANSACTIONS_SHEET_NAME)) {
     addRequests.push({ addSheet: { properties: { title: TRANSACTIONS_SHEET_NAME } } });
@@ -93,7 +99,7 @@ async function ensureRequiredSheetsAndHeaders(
   if (addRequests.length > 0) {
     await sheets.spreadsheets.batchUpdate({
       spreadsheetId: env.GOOGLE_SHEET_ID,
-      requestBody: { requests: addRequests },
+      requestBody: { requests: addRequests as never },
     });
   }
 

@@ -2,6 +2,9 @@
 .env.local
 .env*.local
 
+# google service account credentials
+location-demo-*.json
+
 # deps
 node_modules/
 
